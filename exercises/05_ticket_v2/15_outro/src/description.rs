@@ -2,7 +2,42 @@
 //   enforcing that the description is not empty and is not longer than 500 characters.
 //   Implement the traits required to make the tests pass too.
 
+use std::fmt::{Display, Formatter};
+
+#[derive(Debug, PartialEq, Clone)]
 pub struct TicketDescription(String);
+
+#[derive(Debug)]
+pub struct ParseDescriptionError {
+    message: String
+}
+
+impl Display for ParseDescriptionError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl TryFrom<&str> for TicketDescription {
+    type Error = ParseDescriptionError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.is_empty() {
+            return Err(Self::Error { message: "The description cannot be empty".into() })
+        };
+        if value.len() > 50 {
+            return Err(Self::Error { message: "The description cannot be longer than 500 characters".into() })
+        };
+        Ok(Self(value.to_string()))
+    }
+}
+
+impl TryFrom<String> for TicketDescription {
+    type Error = ParseDescriptionError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::try_from(value.as_str())
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
